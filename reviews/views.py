@@ -1,10 +1,12 @@
-from rest_framework import viewsets, permissions, generics, status
+from rest_framework import viewsets, permissions, generics, status, filters, pagination
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.serializers import ModelSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django_filters.rest_framework import DjangoFilterBackend
+
 
 from .models import Movie, Genre, Review, Like
 from .serializers import (
@@ -19,6 +21,11 @@ from .serializers import (
 # Custom Permissions
 # ----------------------
 
+
+class MoviePagination(pagination.PageNumberPagination):
+    page_size = 5  # default items per page
+    page_size_query_param = "page_size"  # client can override with ?page_size=10
+    max_page_size = 100
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     """Only admins can create/update/delete movies"""
@@ -53,6 +60,15 @@ class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
     permission_classes = [IsAdminOrReadOnly]
+    pagination_class = MoviePagination
+    
+    # 🔍 Enable filtering, search, ordering
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["genres", "release_date"]  # filtering
+    search_fields = ["title", "description"]                # searching
+    ordering_fields = ["release_date", "title"]   # sorting
+    ordering = ["title"]  # default ordering
+
 
     @action(detail=True, methods=["get"])
     def reviews(self, request, pk=None):
