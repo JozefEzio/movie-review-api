@@ -2,7 +2,6 @@ from rest_framework import viewsets, permissions, generics, status, filters, pag
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from rest_framework.serializers import ModelSerializer
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django_filters.rest_framework import DjangoFilterBackend
@@ -14,6 +13,7 @@ from .serializers import (
     GenreSerializer,
     ReviewSerializer,
     LikeSerializer,
+    UserSerializer,
 )
 
 
@@ -78,6 +78,13 @@ class MovieViewSet(viewsets.ModelViewSet):
         serializer = ReviewSerializer(reviews, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=["get"])
+    def genres(self, request):
+        """Custom endpoint: /api/movies/genres/ to get available genres for movie creation"""
+        genres = Genre.objects.all().order_by('name')
+        serializer = GenreSerializer(genres, many=True)
+        return Response(serializer.data)
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
@@ -88,7 +95,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
-        """Optionally filter reviews by movie if 'movie_id' is in the URL"""
+        """Optionally filter reviews by movie if 'movie_pk' is in the URL"""
         movie_id = self.kwargs.get("movie_pk")  # nested route
         if movie_id:
             return self.queryset.filter(movie_id=movie_id)
@@ -109,23 +116,13 @@ class LikeViewSet(viewsets.ModelViewSet):
 # ----------------------
 
 
-class UserSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["id", "username", "password"]
-        extra_kwargs = {"password": {"write_only": True}}
-
-    def create(self, validated_data):
-        user = User.objects.create_user(
-            username=validated_data["username"], password=validated_data["password"]
-        )
-        Token.objects.create(user=user)  # auto-generate token
-        return user
-
-
 class RegisterView(generics.CreateAPIView):
     """POST /api/auth/register/"""
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        Token.objects.create(user=user)  # auto-generate token

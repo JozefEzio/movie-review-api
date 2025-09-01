@@ -1,212 +1,226 @@
-# 🎬 Movie Review API
+# Movie Review API
 
-A Django REST Framework (DRF) project where users can browse movies, write reviews, and rate them. This project demonstrates authentication, filtering, pagination, and CRUD operations with Django and DRF.
-
----
+A Django REST Framework API for managing movies, reviews, and user interactions.
 
 ## 🚀 Features
 
-- User authentication (Register/Login/Logout)
-- Add, update, and delete movie reviews
-- Rate movies (1–5 stars)
-- Search, filter, and order movies
-- Token-based authentication for secure API access
-- Pagination for listing results
-- Like/unlike movies
-- Genre management
+- **Movies Management**: CRUD operations for movies with genres
+- **Review System**: Users can rate and review movies (1-10 scale)
+- **Like System**: Users can like reviews
+- **Authentication**: Token-based authentication with user registration
+- **Filtering & Search**: Advanced filtering, searching, and ordering
+- **Nested Routing**: Reviews are nested under movies for better organization
+- **CORS Support**: Ready for frontend integration
 
----
+## 🔧 Issues Fixed
 
-## 🛠️ Tech Stack
+The following problems have been resolved:
 
-- **Backend:** Django, Django REST Framework
-- **Database:** SQLite (default, can be changed to PostgreSQL/MySQL)
-- **Auth:** Token Authentication + Session Authentication
-- **Filtering:** `django-filter`
-- **Deployment (optional):** Heroku / Render / PythonAnywhere
+1. **Missing Nested Routing**: Added proper nested routing for reviews under movies
+2. **Model Validation**: Added rating validation (1-10) and unique constraints
+3. **Duplicate Prevention**: Users can only review a movie once and like a review once
+4. **Missing Dependencies**: Added CORS headers and nested routers support
+5. **Serializer Improvements**: Enhanced serializers with computed fields and validation
+6. **Password Security**: Improved user registration with password confirmation
+7. **API Structure**: Better organization with nested endpoints
 
----
+## 📋 Requirements
 
-## ⚙️ Installation & Setup
+- Python 3.8+
+- Django 5.2.5+
+- Django REST Framework 3.14.0+
+- Django CORS Headers 4.0.0+
+- DRF Nested Routers 0.93.4+
 
-### Prerequisites
-- Python 3.8 or higher
-- pip (Python package installer)
+## 🛠️ Installation
 
-### Clone the repository
-```bash
-git clone https://github.com/JozefEzio/movie-review-api.git
-cd movie-review-api
-```
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd movie-review-api
+   ```
 
-### Create and activate a virtual environment
-```bash
-# On Linux/Mac
-python -m venv venv
-source venv/bin/activate
+2. **Create virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-# On Windows
-python -m venv venv
-venv\Scripts\activate
-```
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### Install dependencies
-```bash
-pip install -r requirements.txt
-```
+4. **Run migrations**
+   ```bash
+   python manage.py migrate
+   ```
 
-### Apply migrations
-```bash
-python manage.py migrate
-```
+5. **Create superuser**
+   ```bash
+   python manage.py createsuperuser
+   ```
 
-### Create a superuser (admin)
-```bash
-python manage.py createsuperuser
-```
+6. **Run the server**
+   ```bash
+   python manage.py runserver
+   ```
 
-### Run the development server
-```bash
-python manage.py runserver
-```
+## 🌐 API Endpoints
 
-### Access the API
-- API Base URL: `http://127.0.0.1:8000/api/`
-- Admin Interface: `http://127.0.0.1:8000/admin/`
+### Base URL: `http://localhost:8000/api/`
 
----
+#### Authentication
+- `POST /api/auth/register/` - User registration
+- `POST /api/auth/token/` - Get authentication token
 
-## 📌 API Endpoints
-
-### Authentication
-- `POST /api/auth/register/` - Register new user
-- `POST /api/auth/token/` - Login & get token
-- `GET /api/api-auth/` - DRF login/logout interface
-
-### Movies
+#### Movies
 - `GET /api/movies/` - List all movies
-- `GET /api/movies/{id}/` - Retrieve a single movie
-- `POST /api/movies/` - Add new movie (admin only)
+- `POST /api/movies/` - Create a movie (admin only)
+- `GET /api/movies/{id}/` - Get movie details
 - `PUT /api/movies/{id}/` - Update movie (admin only)
 - `DELETE /api/movies/{id}/` - Delete movie (admin only)
+- `GET /api/movies/{id}/reviews/` - Get reviews for a specific movie
 
-### Reviews
-- `GET /api/reviews/` - List reviews
-- `POST /api/reviews/` - Add review
+#### Reviews
+- `GET /api/reviews/` - List all reviews
+- `POST /api/reviews/` - Create a review (authenticated users)
+- `GET /api/reviews/{id}/` - Get review details
 - `PUT /api/reviews/{id}/` - Update review (owner only)
 - `DELETE /api/reviews/{id}/` - Delete review (owner only)
 
-### Likes
-- `GET /api/likes/` - List likes
-- `POST /api/likes/` - Like a movie
-- `DELETE /api/likes/{id}/` - Unlike a movie
-
-### Genres
+#### Genres
 - `GET /api/genres/` - List all genres
-- `GET /api/genres/{id}/` - Retrieve a single genre
-- `POST /api/genres/` - Add new genre (admin only)
-- `PUT /api/genres/{id}/` - Update genre (admin only)
-- `DELETE /api/genres/{id}/` - Delete genre (admin only)
+- `POST /api/genres/` - Create a genre (admin only)
 
----
+#### Likes
+- `GET /api/likes/` - List all likes
+- `POST /api/likes/` - Like a review (authenticated users)
 
-## 🔐 Authentication
+## 🔍 Advanced Features
 
-This API uses token-based authentication. To access protected endpoints:
+### Filtering
+- Filter movies by genre: `/api/movies/?genres=Action`
+- Filter movies by release date: `/api/movies/?release_date=2024-01-01`
 
-1. Register a new user: `POST /api/auth/register/`
-2. Get your token: `POST /api/auth/token/` with your credentials
-3. Include the token in your requests:
-   ```
-   Authorization: Token your_token_here
-   ```
+### Searching
+- Search movies by title or description: `/api/movies/?search=avengers`
 
----
+### Ordering
+- Order movies by release date: `/api/movies/?ordering=-release_date`
+- Order movies by title: `/api/movies/?ordering=title`
 
-## 📝 Usage Examples
+### Pagination
+- Customize page size: `/api/movies/?page_size=20`
+- Navigate pages: `/api/movies/?page=2`
 
-### Register a new user
+## 📱 Usage Examples
+
+### 1. User Registration
 ```bash
-curl -X POST http://127.0.0.1:8000/api/auth/register/ \
+curl -X POST http://localhost:8000/api/auth/register/ \
   -H "Content-Type: application/json" \
-  -d '{"username": "testuser", "password": "testpass123", "email": "test@example.com"}'
+  -d '{
+    "username": "john_doe",
+    "email": "john@example.com",
+    "password": "securepass123",
+    "password_confirm": "securepass123"
+  }'
 ```
 
-### Get authentication token
+### 2. Get Authentication Token
 ```bash
-curl -X POST http://127.0.0.1:8000/api/auth/token/ \
+curl -X POST http://localhost:8000/api/auth/token/ \
   -H "Content-Type: application/json" \
-  -d '{"username": "testuser", "password": "testpass123"}'
+  -d '{
+    "username": "john_doe",
+    "password": "securepass123"
+  }'
 ```
 
-### Create a review (with token)
+### 3. Create a Review (with token)
 ```bash
-curl -X POST http://127.0.0.1:8000/api/reviews/ \
-  -H "Authorization: Token your_token_here" \
+curl -X POST http://localhost:8000/api/reviews/ \
+  -H "Authorization: Token YOUR_TOKEN_HERE" \
   -H "Content-Type: application/json" \
-  -d '{"movie": 1, "rating": 5, "comment": "Great movie!"}'
+  -d '{
+    "movie": 1,
+    "rating": 8,
+    "comment": "Great movie! Highly recommended."
+  }'
 ```
 
----
-
-## 🗄️ Database Schema
-
-The project includes the following models:
-- **User** - Django's built-in User model
-- **Movie** - Movie information (title, description, release date, etc.)
-- **Review** - User reviews with ratings and comments
-- **Like** - User likes for movies
-- **Genre** - Movie genres
-
----
-
-## 🚀 Deployment
-
-### Local Development
-The project is configured for local development with SQLite database. For production:
-
-1. Change `DEBUG = False` in `settings.py`
-2. Set a secure `SECRET_KEY`
-3. Configure `ALLOWED_HOSTS`
-4. Use a production database (PostgreSQL/MySQL)
-5. Set up static file serving
-
-### Environment Variables
-Create a `.env` file for sensitive settings:
-```
-SECRET_KEY=your_secret_key_here
-DEBUG=False
-ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+### 4. Get Movie Reviews
+```bash
+curl http://localhost:8000/api/movies/1/reviews/
 ```
 
----
+## 🗄️ Database Models
+
+### Movie
+- `title`: Movie title (max 200 chars)
+- `description`: Movie description
+- `release_date`: Release date
+- `genres`: Many-to-many relationship with Genre
+- `created_at`: Creation timestamp
+- `updated_at`: Last update timestamp
+
+### Review
+- `user`: Foreign key to User
+- `movie`: Foreign key to Movie
+- `rating`: Integer 1-10
+- `comment`: Optional text comment
+- `created_at`: Creation timestamp
+- `updated_at`: Last update timestamp
+
+### Genre
+- `name`: Genre name (unique, max 100 chars)
+
+### Like
+- `user`: Foreign key to User
+- `review`: Foreign key to Review
+- `created_at`: Creation timestamp
+
+## 🔒 Security Features
+
+- **Password Validation**: Minimum 8 characters, confirmation required
+- **Token Authentication**: Secure API access
+- **Permission System**: Role-based access control
+- **Unique Constraints**: Prevents duplicate reviews and likes
+- **Input Validation**: Rating validation (1-10 scale)
+
+## 🧪 Testing
+
+Run the test script to verify API functionality:
+```bash
+python test_api.py
+```
+
+## 🚨 Important Notes
+
+- **CORS is enabled for development** - Configure properly for production
+- **Debug mode is enabled** - Disable for production
+- **SQLite database** - Consider PostgreSQL for production
+- **Secret key exposed** - Generate new secret key for production
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
----
+## 🆘 Support
 
-## 👨‍💻 Author
-
-**JozefEzio** - [GitHub Profile](https://github.com/JozefEzio)
-
----
-
-## 🙏 Acknowledgments
-
-- Django REST Framework for the excellent API framework
-- Django community for the robust web framework
-- All contributors who help improve this project
+If you encounter any issues:
+1. Check the Django logs
+2. Verify all dependencies are installed
+3. Ensure migrations are applied
+4. Check the API endpoints with the test script
 
 
